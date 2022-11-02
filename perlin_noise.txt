@@ -8,12 +8,22 @@
 //
 // xs_begin
 // author : '@lachlanmcdonald'
-// arg : { name = 'Size X'  var = 'm_size_x'  range = '0.001 1'  value = '0.1'  step = '0.001'  precision = '3' }
-// arg : { name = 'Size Y'  var = 'm_size_y'  range = '0.001 1'  value = '0.1'  step = '0.001'  precision = '3' }
-// arg : { name = 'Size Z'  var = 'm_size_z'  range = '0.001 1'  value = '0.1'  step = '0.001'  precision = '3' }
+// arg : { name = 'Scale X'  var = 'm_size_x'  range = '0.001 1'  value = '0.1'  step = '0.001'  precision = '3' }
+// arg : { name = 'Scale Y'  var = 'm_size_y'  range = '0.001 1'  value = '0.1'  step = '0.001'  precision = '3' }
+// arg : { name = 'Scale Z'  var = 'm_size_z'  range = '0.001 1'  value = '0.1'  step = '0.001'  precision = '3' }
+// arg : { name = 'Frequency'  var = 'm_frequency'  range = '0 10'  value = '1'  step = '0.01'  precision = '2' }
+// arg : { name = 'Amplitude'  var = 'm_amplitude'  range = '0 10'  value = '0.5'  step = '0.01'  precision = '2' }
+// arg : { name = 'Octave Count'  var = 'm_octave_count'  range = '0 100'  value = '1'  step = '1'  precision = '0' }
+// arg : { name = 'Persistence'  var = 'm_persistence'  range = '0 1'  value = '0.5'  step = '0.01'  precision = '2' }
+// arg : { name = 'Lacunarity'  var = 'm_lacunarity'  range = '0 50'  value = '2'  step = '0.1'  precision = '2' }
 // xs_end
 
 vec3 dim = vec3(m_size_x, m_size_y, m_size_z);
+int octaveCount = m_octave_count;
+float frequency = m_frequency;
+float amplitude = m_amplitude;
+float persistence = m_persistence;
+float lacunarity = m_lacunarity;
 
 float pal(float p) {
 	float norm = p / float(i_num_color_sels);
@@ -120,5 +130,13 @@ float map(vec3 v) {
 	vec3 v_sized = v * dim;
 	float resulstnoise = cnoise(v_sized);
 
-	return pal(resulstnoise * 255.0);
+	float value = 0.0;
+
+	for (int i = 0; i < octaveCount; i++) {
+        value += amplitude * cnoise(v_sized * frequency);
+        amplitude *= persistence;
+        frequency *= lacunarity;
+    }
+
+	return pal(value * 255.0);
 }
